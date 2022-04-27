@@ -7,22 +7,21 @@ var randomChosenColour = buttonColours[nextSequence()];
 var gamePattern = [];
 var userClickedPattern = [];
 var currentLevel = 0;
-
+var seqLen = 3;
+var timegap = 1000;
+var clickDone = 0;
+var clickLeft = 0;
 
 //-------------------------start button ---------------------
 
 document.querySelector(".startbtn").addEventListener("click", startButtonClick);
 
-document.querySelector(".submitbtn").addEventListener("click", submitButtonClick);
+//document.querySelector(".btn").addEventListener("click", submitButtonClick);
 
 function startButtonClick() {
 
-	//startGame();
 	gamePattern = [];
 	userClickedPattern = [];
-
-	var seqLen = 3;
-	var timegap = 1000;
 
 	for (var i = 0; i < seqLen; i++) {
 		window.setTimeout(startGame, i * timegap);
@@ -30,39 +29,58 @@ function startButtonClick() {
 
 
 	window.setTimeout(function() {
-		$("#level-title").text("Click Now !!")
+		$("#level-title").text("Repeat Now");
 	}, seqLen * timegap);
 
 }
 
 function submitButtonClick() {
+
+	clickDone++;
+	clickLeft = seqLen - clickDone;
+
 	if (checkResult(gamePattern, userClickedPattern)) {
 
-		$("#level-title").text("Congratulation !!")
+		if (gamePattern.length == userClickedPattern.length) {
+			gotoNextLevel();
+
+			if (currentLevel % 3 == 0) {
+				seqLen++;
+				timegap + 100;
+			}
+
+			clickDone = 0;
+			clickLeft = 0;
+			$("#level-title").text("😀 Level " + currentLevel);
+			window.setTimeout(startButtonClick, 1000);
+		} else {
+			$("#level-title").text(clickLeft + " click left");
+		}
 
 	} else {
 
-		$("#level-title").text("Try Again!!")
+		clickDone = 0;
+		clickLeft = 0;
+		$("#level-title").text(" Try Again 😢 !! Press start ");
+
+		window.setTimeout(function() {
+			$("#level-title").text("Simon Game")
+		}, 1000);
+
+		playSound("wrong");
 	}
 }
 
 function checkResult(gamePattern, userClickedPattern) {
 
-	if (gamePattern.length == userClickedPattern.length) {
+	for (var i = 0; i < userClickedPattern.length; i++) {
 
-		for (var i = 0; i < gamePattern.length; i++) {
+		if (gamePattern[i] != userClickedPattern[i])
+			return false;
 
-			if (gamePattern[i] != userClickedPattern[i])
-				return false;
-
-		}
-
-		return true;
 	}
-	return false
+	return true;
 }
-
-
 
 function startGame() {
 	randomChosenColour = buttonColours[nextSequence()];
@@ -76,23 +94,29 @@ function startGame() {
 
 $(".btn").click(function() {
 
-	var userChosenColour = this.id;
+	if (gamePattern == 0) {
+		$("#level-title").text("Click start to start the game");
 
-	btnFlash(userChosenColour);
+		window.setTimeout(function() {
+			$("#level-title").text("Simon Game")
+		}, 1000);
 
-	userClickedPattern.push(userChosenColour);
+	} else {
 
-	playSound(userChosenColour);
-
-	console.log(userClickedPattern);
+		var userChosenColour = this.id;
+		btnFlash(userChosenColour);
+		userClickedPattern.push(userChosenColour);
+		playSound(userChosenColour);
+		submitButtonClick();
+	}
 
 });
 
 
-function gotoNextLevel(){
-	
+function gotoNextLevel() {
+
 	return currentLevel++;
-	
+
 }
 
 
@@ -103,15 +127,10 @@ function btnFlash(colour) {
 
 }
 
-
-
-
 function nextSequence() {
 	var randomNumber = Math.floor((Math.random() * 4));
 	return randomNumber;
 }
-
-
 
 
 function playSound(randomChosenColour) {
@@ -140,6 +159,14 @@ function playSound(randomChosenColour) {
 
 			sound.play();
 			break;
+
+		case "wrong":
+			var sound = new Audio('sounds/wrong.mp3');
+			sound.autoplay = true;
+
+			sound.play();
+			break;
+
 
 	}
 
