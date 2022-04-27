@@ -6,14 +6,20 @@ var buttonColours = ["red", "blue", "green", "yellow"];
 var randomChosenColour = buttonColours[nextSequence()];
 var gamePattern = [];
 var userClickedPattern = [];
+var currentLevel = 0;
+
 
 //-------------------------start button ---------------------
 
 document.querySelector(".startbtn").addEventListener("click", startButtonClick);
 
+document.querySelector(".submitbtn").addEventListener("click", submitButtonClick);
+
 function startButtonClick() {
 
 	//startGame();
+	gamePattern = [];
+	userClickedPattern = [];
 
 	var seqLen = 3;
 	var timegap = 1000;
@@ -27,12 +33,35 @@ function startButtonClick() {
 		$("#level-title").text("Click Now !!")
 	}, seqLen * timegap);
 
-
-   
-
 }
 
-function checkResult()
+function submitButtonClick() {
+	if (checkResult(gamePattern, userClickedPattern)) {
+
+		$("#level-title").text("Congratulation !!")
+
+	} else {
+
+		$("#level-title").text("Try Again!!")
+	}
+}
+
+function checkResult(gamePattern, userClickedPattern) {
+
+	if (gamePattern.length == userClickedPattern.length) {
+
+		for (var i = 0; i < gamePattern.length; i++) {
+
+			if (gamePattern[i] != userClickedPattern[i])
+				return false;
+
+		}
+
+		return true;
+	}
+	return false
+}
+
 
 
 function startGame() {
@@ -58,6 +87,13 @@ $(".btn").click(function() {
 	console.log(userClickedPattern);
 
 });
+
+
+function gotoNextLevel(){
+	
+	return currentLevel++;
+	
+}
 
 
 //------------------button flash ---------------------
